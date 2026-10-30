@@ -1,7 +1,7 @@
 import { getAnalysis } from './market.js';
 import {getSelectedAsset} from './assets.js';
-import { t, formatDate, getLocaleTag } from './i18n.js?v=20261030-news27';
-import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-context.js?v=20261030-news27';
+import { t, formatDate, getLocaleTag } from './i18n.js?v=20261030-hnonly28';
+import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-context.js?v=20261030-hnonly28';
 
 (() => {
   'use strict';
@@ -202,13 +202,12 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
     const newsStatus=ctx?.status;
     const live=newsStatus==='live';
     const available=live || newsStatus==='empty';
-    const fallback=live && ctx.source==='hackernews';
     const stale=newsStatus==='stale';
     status.classList.toggle('offline',newsStatus==='unavailable'||stale);
-    status.classList.toggle('fallback',fallback||stale);
-    const statusKey=!ctx?'context.loading':stale?'context.feedStale':fallback?'context.feedFallback':live?'context.feedLive':newsStatus==='empty'?'context.feedEmpty':'context.feedOffline';
+    status.classList.toggle('fallback',stale);
+    const statusKey=!ctx?'context.loading':stale?'context.feedStale':live?'context.feedLive':newsStatus==='empty'?'context.feedEmpty':'context.feedOffline';
     setText('context-status',t(statusKey));
-    setText('context-news-source',t(ctx?.source==='hackernews'?'context.sourceFallback':'context.newsSource'));
+    setText('context-news-source',t('context.newsSource'));
     const newsList=$('context-news-list'); newsList.replaceChildren();
     if (!ctx?.news?.length) {
       const errorKey=ctx?.errorCode==='timeout'?'context.errorTimeout':ctx?.errorCode==='rate-limit'||ctx?.errorCode==='throttled'?'context.errorRate':ctx?.errorCode==='invalid-response'?'context.errorResponse':ctx?.errorCode==='forbidden'?'context.errorAccess':'context.notAvailableTitle';
@@ -248,7 +247,7 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
     let detail='context.noImpact';
     if (impact?.reason==='event-risk') detail='context.blockEvent';
     else if(stale)detail='context.staleImpact';
-    else if(fallback)detail='context.fallbackImpact';
+    else if(live)detail='context.hnInformational';
     else if(newsStatus==='empty')detail='context.emptyImpact';
     else if(!available)detail='context.unavailable';
     else if (!measurable) detail='context.insufficient';
@@ -264,7 +263,7 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
       driver.append(makeElement('span','driver-mark','◌'),makeElement('span','context-driver-text'));
       driverList.append(driver);
     }
-    driver.querySelector('.context-driver-text').textContent=t(impact?.reason==='event-risk'?'context.blockEvent':impact?.reason==='conflict-bearish'?'context.blockBear':impact?.reason==='conflict-bullish'?'context.blockBull':stale?'context.staleImpact':fallback?'context.fallbackImpact':newsStatus==='empty'?'context.emptyImpact':live?'context.combined':'context.unavailable');
+    driver.querySelector('.context-driver-text').textContent=t(impact?.reason==='event-risk'?'context.blockEvent':impact?.reason==='conflict-bearish'?'context.blockBear':impact?.reason==='conflict-bullish'?'context.blockBull':stale?'context.staleImpact':newsStatus==='empty'?'context.emptyImpact':live?'context.hnInformational':'context.unavailable');
   }
   function drawContextMarkers(items,pad,plotWidth) {
     const layer=$('chart-marker-layer'),future=$('chart-future-badge');
