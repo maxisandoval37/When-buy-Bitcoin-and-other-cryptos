@@ -1,5 +1,6 @@
 /** Selector de monedas accesible, con destacados y catálogo completo bajo demanda. */
 import {getAssetCatalog, getSelectedAsset, selectAsset, FEATURED, DEFAULT_ASSET} from './assets.js';
+import {mountCryptoLogo} from './coin-icons.js?v=20261030-coinlogos30';
 import {t} from './i18n.js?v=20261030-opportunity29';
 const $ = id=>document.getElementById(id);
 let assets = [DEFAULT_ASSET], openedAll=false, shown=80, query='', available=false;
@@ -23,7 +24,7 @@ function makeOption(asset) {
   b.setAttribute('aria-label',`${asset.name}, ${asset.base}/${asset.quote}`);
   if (active) b.setAttribute('aria-current','true');
   const icon=document.createElement('span');icon.className='asset-option-icon'+(asset.base==='BTC'?' bitcoin':'');
-  icon.textContent=asset.base==='BTC'?'₿':asset.base.slice(0,2);
+  mountCryptoLogo(icon,asset,{eager:!openedAll});
   const copy=document.createElement('span');copy.className='asset-option-copy';
   const name=document.createElement('span');name.className='asset-option-name';name.textContent=asset.name;
   const pair=document.createElement('span');pair.className='asset-option-pair';pair.textContent=`${asset.base} / ${asset.quote}`;

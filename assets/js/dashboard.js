@@ -1,5 +1,6 @@
 import { getAnalysis } from './market.js?v=20261030-opportunity29';
 import {getSelectedAsset} from './assets.js';
+import {mountCryptoLogo} from './coin-icons.js?v=20261030-coinlogos30';
 import { t, formatDate, getLocaleTag } from './i18n.js?v=20261030-opportunity29';
 import { enrichAnalysis, isContextEnabled, setContextEnabled, getScheduledEvents } from './market-context.js?v=20261030-opportunity29';
 
@@ -530,7 +531,7 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled, getScheduledEvents
     setText('hero-asset-name',selectedAsset.name+',');
     setText('asset-name',selectedAsset.name);
     setText('asset-symbol',`${selectedAsset.base} / ${selectedAsset.quote}`);
-    setText('asset-coin-icon',selectedAsset.base==='BTC'?'₿':selectedAsset.base.slice(0,2));
+    mountCryptoLogo($('asset-coin-icon'),selectedAsset,{eager:true});
     setText('asset-spot-caption',selectedAsset.quote==='USDT'?t('assets.usdtDescription'):t('assets.quoteDescription',{quote:selectedAsset.quote}));
     setText('asset-price-title',t('assets.priceTitle',{asset:selectedAsset.name}));
     setText('asset-currency-prefix',quotePrefix());

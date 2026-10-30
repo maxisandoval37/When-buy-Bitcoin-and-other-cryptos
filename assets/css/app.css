@@ -705,3 +705,16 @@ body{font-size:15px}
 .chart-legend-sell i{background:#d76666}
 .chart-legend-note{flex:1;min-width:150px}
 @media(max-width:650px){.chart-frame{height:305px}.chart-opportunity-legend{gap:6px 12px}.chart-legend-note{min-width:100%;font-size:10px}.chart-opportunity-marker{width:36px;height:36px}.chart-opportunity-marker::before{width:16px;height:16px}.chart-tooltip.is-buy,.chart-tooltip.is-sell{min-width:144px;padding:9px 11px}.chart-signal-title{font-size:11.5px}}
+
+
+/* v3.0 · Cryptocurrency logos in picker and selected asset, no layout shift */
+.coin-icon,.asset-option-icon{position:relative;overflow:hidden}
+.crypto-logo-fallback{display:grid;place-items:center;width:100%;height:100%;line-height:1}
+.crypto-logo-fallback[hidden]{display:none!important}
+.crypto-logo-image{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;padding:3px;opacity:0;transition:opacity .16s ease;user-select:none}
+.crypto-logo-image.is-ready{opacity:1}
+.coin-icon.has-crypto-logo,.coin-icon.is-alt-coin.has-crypto-logo{background:#f4f7fb;box-shadow:none;color:transparent}
+.asset-option-icon.has-crypto-logo,.asset-option-icon.bitcoin.has-crypto-logo{background:#f5f8fc;color:transparent}
+.asset-option-icon .crypto-logo-image{padding:3px}
+.coin-icon .crypto-logo-image{padding:4px}
+@media(max-width:520px){.asset-option-icon .crypto-logo-image{padding:3px}.coin-icon .crypto-logo-image{padding:4px}}
