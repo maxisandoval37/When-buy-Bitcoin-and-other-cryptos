@@ -564,3 +564,19 @@ input:where([type='button'], [type='reset'], [type='submit']),
   .topbar-right{flex-shrink:0}
   .terms-mark>span:nth-child(2){max-width:180px;overflow-wrap:anywhere}
 }
+
+
+/* Footer credits · When buy Bitcoin and other cryptos */
+.footer{flex-direction:column;align-items:stretch;gap:15px}
+.footer-info{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.footer-info>span{min-width:0}
+.footer-credits{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;border-top:1px solid #e7ecf1;padding-top:15px}
+.footer-copyright{margin:0;color:#8393a5;font-size:10px;line-height:1.65}
+.footer-copyright strong{color:#657b93;font-weight:700;letter-spacing:0}
+.footer-author{display:flex;align-items:center;gap:7px;flex-wrap:wrap;color:#8393a5;font-size:10px}
+.footer-author>strong{color:#526b87;letter-spacing:0;font-weight:800}
+.footer-social{display:inline-flex;align-items:center;gap:7px;margin-left:8px}
+.footer-social a{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border:1px solid #dfe8f1;border-radius:8px;background:#f7f9fc;color:#476b93;font-weight:800;text-decoration:none;transition:background .15s,color .15s,border-color .15s}
+.footer-social a:hover{background:#eaf2fc;border-color:#bfd4ec;color:#244f81}
+.footer-social a:focus-visible{outline:2px solid #5076d6;outline-offset:2px}
+@media(max-width:650px){.footer-info,.footer-credits{flex-direction:column;align-items:flex-start;gap:10px}.footer-author{gap:6px}.footer-social{margin-left:0;flex-wrap:wrap}}
