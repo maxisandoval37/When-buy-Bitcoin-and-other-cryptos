@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<meta content="#101e32" name="theme-color"/>
+<meta content="When buy Bitcoin and other cryptos: precios, indicadores, señales y contexto del mercado." data-i18n-content="meta.description" name="description"/>
+<title>When buy Bitcoin and other cryptos · Crypto Signals</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="./assets/css/app.css" rel="stylesheet"/>
+<link href="./favicon.svg" rel="icon" type="image/svg+xml"/>
+<link href="./assets/img/icon-192.png" rel="apple-touch-icon"/>
+<link href="./manifest.webmanifest" rel="manifest"/>
+<meta name="application-name" content="When buy Bitcoin and other cryptos"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="When buy Bitcoin and other cryptos"/>
+<meta property="og:title" content="When buy Bitcoin and other cryptos"/>
+<meta property="og:description" content="Cryptocurrency prices, technical analysis, explainable signals and market news."/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="When buy Bitcoin and other cryptos"/>
+<script>
+    try { if (localStorage.getItem('atlas.terms.version') === '2026-10-multi') document.documentElement.classList.add('terms-accepted'); } catch (_) {}
+  </script>
+<script src="./assets/js/dashboard.js" type="module"></script>
+<script src="./assets/js/asset-picker.js" type="module"></script>
+<script src="./assets/js/notifications.js" type="module"></script>
+</head>
+<body>
+<div class="app-frame">
+<aside aria-label="Navegación principal" class="sidebar" data-i18n-aria-label="aria.sidebar">
+<div class="brand" aria-label="When buy Bitcoin and other cryptos">
+  <div class="brand-icon" aria-hidden="true"><img src="./assets/img/brand-mark.svg" alt=""/></div>
+  <div class="brand-copy"><strong>When buy</strong><span data-i18n="side.brandLine">Bitcoin and other cryptos</span></div>
+</div>
+<div class="sidebar-group-label" data-i18n="side.workspace">WORKSPACE</div>
+<nav class="side-nav">
+<a aria-current="page" class="side-link active" data-i18n-node="side.overview" href="./"><span class="nav-icon">▦</span> Vista general <span class="nav-tick"></span></a>
+<a class="side-link" data-i18n-node="side.indicators" href="#indicadores"><span class="nav-icon">◈</span> Indicadores</a>
+<a class="side-link" data-i18n-node="side.methodology" href="#metodologia"><span class="nav-icon">≋</span> Metodología</a>
+</nav>
+<div class="sidebar-spacer"></div>
+<div class="sidebar-insight">
+<div class="insight-top" data-i18n-node="side.marketData"><span class="pulse-dot"></span> DATOS DE MERCADO</div>
+<strong data-i18n="side.context">Decisiones con contexto.</strong>
+<p data-i18n="side.insight">Datos objetivos, múltiples señales y criterios transparentes.</p>
+<div class="insight-rule"></div>
+<span class="source-label" data-i18n="side.source">FUENTE · BINANCE SPOT</span>
+</div>
+<div class="sidebar-footer">© 2026 When buy <span>v2.4</span></div>
+</aside>
+<main class="content">
+<header class="topbar">
+<div class="topbar-left"><span class="mobile-brand" aria-label="When buy Bitcoin and other cryptos"><img src="./assets/img/brand-mark.svg" alt=""/><strong>When buy</strong></span><span class="breadcrumb-parent" data-i18n="top.markets">Mercados</span><span class="breadcrumb-chevron">/</span><strong id="top-asset-name">Bitcoin</strong></div>
+<div class="topbar-right"><a aria-label="Gestionar alertas push" class="top-alert-link" data-i18n-aria-label="aria.top-alert-link" href="#alertas">♧ <span data-i18n="top.alerts">Alertas</span></a><div class="language-switch" title="Idioma / Language / Idioma"><label class="sr-only" data-i18n="language.label" for="language-select">Idioma</label><span aria-hidden="true" class="language-globe">◎</span><select aria-label="Idioma / Language / Idioma" data-i18n-aria-label="language.label" data-language-select="" id="language-select"><option value="es">ES</option><option value="en">EN</option><option value="pt">PT</option></select></div><span class="feed-state" data-i18n-node="top.connected" id="connection-status"><i class="status-light"></i> Mercado conectado</span><span class="topbar-separator"></span><span class="clock" id="local-clock">UTC · --:--</span><span class="avatar" title="When buy Bitcoin and other cryptos">WB</span></div>
+</header>
+<div class="page-inner mx-auto">
+<section class="page-heading">
+<div><div class="eyebrow" data-i18n-node="hero.eyebrow"><span class="eyebrow-line"></span> INTELIGENCIA DE MERCADO <span class="eyebrow-index">/ 001</span></div><h1><span class="hero-asset-name" id="hero-asset-name">Bitcoin,</span> <span data-i18n="hero.subtitle">en perspectiva.</span></h1><p data-i18n="hero.lead">Una visión clara del mercado. Menos ruido, mejores señales.</p></div>
+<button aria-label="Actualizar análisis" class="refresh-btn" data-i18n-aria-label="aria.refresh-btn" id="refresh-btn" type="button"><span id="refresh-icon">↻</span> <span data-i18n="hero.refresh">Actualizar datos</span></button>
+</section>
+<section aria-label="Mercado y temporalidad" class="market-strip flex items-center justify-between" data-i18n-aria-label="aria.market-strip">
+<div class="asset-identity">
+  <div class="asset-picker-wrap" id="asset-picker-wrap">
+    <button class="asset-picker-trigger" id="asset-picker-trigger" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="asset-picker-panel" aria-label="Seleccionar criptomoneda">
+      <span class="coin-icon" id="asset-coin-icon" aria-hidden="true">₿</span>
+      <span class="asset-picker-copy"><strong><span id="asset-name">Bitcoin</span> <span class="asset-symbol" id="asset-symbol">BTC / USDT</span></strong><small id="asset-spot-caption">Mercado spot · USDT, no USD fiat</small></span>
+      <span class="asset-picker-chevron" aria-hidden="true">⌄</span>
+    </button>
+    <div class="asset-picker-panel" id="asset-picker-panel" hidden>
+      <div class="asset-picker-header"><strong data-i18n="assets.title">Seleccionar criptomoneda</strong><small data-i18n="assets.subtitle">Pares activos de Binance Spot</small></div>
+      <div class="asset-featured-header" id="asset-featured-header" data-i18n="assets.featured">5 destacadas</div>
+      <div class="asset-picker-list" id="asset-featured-list" role="group" aria-label="Criptomonedas destacadas"></div>
+      <button class="asset-see-all" id="asset-see-all" type="button"><span data-i18n="assets.all">Ver todas</span><span aria-hidden="true">→</span></button>
+      <div id="asset-all-area" hidden>
+        <label class="sr-only" data-i18n="assets.searchLabel" for="asset-search">Buscar criptomoneda</label>
+        <div class="asset-search-wrap"><span aria-hidden="true">⌕</span><input id="asset-search" type="search" autocomplete="off" spellcheck="false" data-i18n-placeholder="assets.search" placeholder="Buscar por nombre o símbolo…"/></div>
+        <div class="asset-results-summary" id="asset-results-summary" aria-live="polite"></div>
+        <div class="asset-picker-list asset-picker-all" id="asset-all-list" role="group" aria-label="Lista de criptomonedas"></div>
+        <button class="asset-load-more" id="asset-load-more" type="button" hidden data-i18n="assets.more">Mostrar más</button>
+      </div>
+      <p class="asset-picker-feedback" id="asset-picker-feedback" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+</div>
+<div class="market-strip-right"><span class="market-meta" data-i18n="asset.timeframe">TEMPORALIDAD</span><div aria-label="Intervalo de velas" class="time-tabs" data-i18n-aria-label="aria.time-tabs" role="group"><button data-interval="1h">1H</button><button aria-pressed="true" class="selected" data-interval="4h">4H</button><button data-interval="1d">1D</button><button data-interval="1w">1S</button></div></div>
+</section>
+<div class="error-banner" id="error-banner" role="alert"><span>!</span><p id="error-message"></p><button data-i18n="error.retry" id="retry-btn" type="button">Reintentar</button></div>
+<section aria-label="Precio y evaluación técnica" class="hero-grid" data-i18n-aria-label="aria.hero-grid">
+<article class="panel price-panel">
+<div class="section-head"><div><div class="label-kicker" data-i18n="price.kicker">PRECIO DE MERCADO</div><div class="inline-asset"><h2 id="asset-price-title">Cotización de Bitcoin</h2><span class="subtle-pill">SPOT</span></div></div><div class="price-head-tools"><label class="context-switch" for="context-toggle" title="" data-i18n-title="context.switchHint"><span class="context-switch-copy" data-i18n="context.switch">Noticias y eventos</span><input id="context-toggle" type="checkbox" role="switch" aria-controls="market-context-panel chart-marker-layer" aria-checked="false"/><span class="context-track" aria-hidden="true"><span class="context-knob"></span></span></label><span class="live-pill"><span class="pulse-dot"></span> LIVE</span></div></div>
+<div class="price-heading"><div><div class="price-big"><span class="currency-prefix" id="asset-currency-prefix">$</span><span id="spot-price">—</span> <span class="currency-suffix" id="asset-currency-suffix">USDT</span></div><div class="price-change-row"><span class="change-badge" id="price-change">—</span><span data-i18n="price.change">Variación de la última vela cerrada</span></div></div><div class="market-range"><small data-i18n="price.analysed">CIERRE ANALIZADO</small><strong id="candle-close">—</strong><small data-i18n="price.pendingTime" id="candle-time">UTC · pendiente</small></div></div>
+<div class="chart-frame" id="chart-frame"><div class="chart-marker-layer" id="chart-marker-layer" aria-label="Marcadores de noticias y eventos" data-i18n-aria-label="context.chartMarkers" hidden=""></div><div class="chart-future-badge" id="chart-future-badge" hidden=""></div><canvas aria-label="Evolución del precio histórico del activo" id="price-chart" role="img"></canvas><div class="chart-tooltip" hidden="" id="chart-tooltip"></div><span class="chart-watermark" id="asset-chart-watermark">BTC / USDT</span></div>
+<div class="chart-bottom"><span class="chart-footnote" data-i18n-node="chart.history" data-i18n-nodes="chart.history|chart.candles"><span class="chart-footnote-mark"></span> Cierres históricos · <span id="chart-count">—</span> velas</span><div aria-label="Tipo de gráfico" class="chart-controls" data-i18n-aria-label="aria.chart-controls" role="group"><button class="active" data-chart="line" data-i18n="chart.line">Línea</button><button data-chart="candles" data-i18n="chart.candleMode">Velas</button></div></div>
+</article>
+<article class="signal-panel relative overflow-hidden is-wait" id="senal">
+<div class="signal-top"><div><div class="signal-kicker">WHEN BUY / SIGNAL ENGINE <span>●</span></div><h2 data-i18n="signal.title">Lectura del mercado</h2></div><div aria-hidden="true" class="signal-orbit"><span>✧</span></div></div>
+<div class="signal-status"><span class="signal-badge" id="signal-badge"><span class="badge-dot"></span> <span data-i18n="signal.pending" id="signal-short">PENDIENTE</span></span><span class="signal-mini-label" data-i18n="signal.eval">EVALUACIÓN ACTUAL</span></div>
+<h3 class="signal-verdict" data-i18n="signal.waiting" id="signal-verdict">Esperando datos</h3>
+<p class="signal-summary" data-i18n="signal.initialSummary" id="signal-summary">La señal se construye mediante la confluencia de indicadores técnicos sobre velas cerradas.</p>
+<div class="confluence-block"><div class="confluence-title"><span data-i18n="signal.confluence">Confluencia técnica</span><strong><span id="confluence">—</span><small>/100</small></strong></div><div class="confluence-track"><div class="confluence-fill" id="confluence-fill" style="width:0%"></div></div><span class="confluence-disclaimer" data-i18n="signal.disclaimer">Coincidencia de reglas · no es probabilidad de ganancia</span></div>
+<div class="signal-driver-list" id="signal-drivers"><div class="signal-driver"><span class="driver-mark">↗</span><span data-i18n="signal.analysing" id="regime-text">Analizando tendencia...</span></div><div class="signal-driver"><span class="driver-mark">⌁</span><span data-i18n="signal.awaitMomentum" id="momentum-text">Confirmación de momentum pendiente</span></div></div>
+<div class="signal-bottom"><span class="update-dot"></span> <span data-i18n-node="signal.updated">Última evaluación: <strong data-i18n="signal.pendingTime" id="updated-at">pendiente</strong></span><span class="signal-arrow">↗</span></div>
+</article>
+</section>
+<section aria-labelledby="context-title" class="market-context-panel" id="market-context-panel" hidden="">
+  <div class="context-heading"><div><div class="context-eyebrow" data-i18n="context.eyebrow">CAPA DE CONTEXTO · OPCIONAL</div><h2 data-i18n="context.title" id="context-title">Lo que mueve el mercado.</h2><p id="context-description">Titulares recientes y próximos eventos. Sus efectos son estimaciones heurísticas, no predicciones.</p></div><div class="context-indicator" aria-live="polite"><span class="context-led"></span><span data-i18n="context.loading" id="context-status">Consultando noticias…</span></div></div>
+  <div class="context-content-grid">
+    <div class="context-news-column"><div class="context-section-header"><strong data-i18n="context.news">Noticias recientes</strong><span data-i18n="context.newsSource">GDELT · enlaces originales</span></div><div class="context-news-list" id="context-news-list"><p class="context-empty" data-i18n="context.loading">Consultando noticias…</p></div></div>
+    <div class="context-events-column"><div class="context-section-header"><strong data-i18n="context.upcoming">Próximos eventos</strong><span data-i18n="context.eventSource">Calendario oficial</span></div><div class="context-events-list" id="context-events-list"></div><div class="context-impact" id="context-impact" aria-live="polite"><div class="context-impact-top"><span data-i18n="context.impactTitle">IMPACTO SOBRE LA SEÑAL</span><strong id="context-impact-value">—</strong></div><p id="context-impact-reason" data-i18n="context.initialImpact">Sin cambios en la evaluación técnica.</p><div class="context-meter"><span id="context-meter-fill"></span></div><div class="context-scale"><span data-i18n="context.negative">Presión negativa</span><span data-i18n="context.positive">Presión positiva</span></div></div></div>
+  </div>
+  <p class="context-disclaimer" data-i18n="context.disclaimer">Los titulares se clasifican automáticamente sin leer los artículos. Pueden estar incompletos, duplicados o ser erróneos. Los eventos futuros tienen dirección desconocida; el contexto nunca crea una señal de compra o venta por sí solo.</p>
+</section>
+<section aria-labelledby="alerts-title" class="notifications-panel" id="alertas">
+<div class="notify-intro">
+<div aria-hidden="true" class="notify-bell">
+<svg fill="none" height="23" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewbox="0 0 24 24" width="23"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"></path></svg>
+</div>
+<div class="notify-copy"><div class="label-kicker" data-i18n="notify.kicker">ALERTAS PERSONALIZADAS</div><h2 data-i18n="notify.title" id="alerts-title">Que el mercado te avise.</h2>
+<p data-i18n="notify.intro">Recibí avisos cuando aparezca una nueva señal de compra o venta mientras When buy esté abierto, incluso en otra pestaña.</p>
+<div aria-live="polite" class="notify-state" id="push-state" role="status"><span class="notify-state-dot"></span><span data-i18n="notify.checking" id="push-state-text">Verificando disponibilidad…</span></div>
+</div>
+</div>
+<div class="notify-settings">
+<p id="push-asset-name" class="notify-market-name" aria-live="polite">Par monitoreado: BTCUSDT</p>
+<div class="notify-form-top"><label data-i18n="notify.timeframe" for="push-interval">Temporalidad</label><select id="push-interval"><option data-i18n="notify.hour" value="1h">1 hora</option><option data-i18n="notify.fourHours" selected="" value="4h">4 horas</option><option data-i18n="notify.day" value="1d">1 día</option><option data-i18n="notify.week" value="1w">1 semana</option></select></div>
+<div aria-label="Tipos de señales" class="notify-checks" data-i18n-aria-label="aria.notify-checks" role="group"><label class="notify-toggle"><input checked="" id="push-buy" type="checkbox"/><span class="notify-toggle-text" data-i18n-node="notify.buy"><span class="notify-toggle-indicator buy"></span> Compra</span></label><label class="notify-toggle"><input checked="" id="push-sell" type="checkbox"/><span class="notify-toggle-text" data-i18n-node="notify.sell"><span class="notify-toggle-indicator sell"></span> Venta</span></label></div>
+<div class="notify-action-row"><button class="notify-primary" data-i18n="notify.activate" id="push-subscribe" type="button">Activar notificaciones</button><button class="notify-quiet" data-i18n="notify.unsubscribe" hidden="" id="push-unsubscribe" type="button">Desuscribirme</button></div>
+<p aria-live="polite" class="notify-feedback" data-i18n="notify.initialFeedback" id="push-feedback" role="status">Avisos orientativos. No se envían órdenes de inversión.</p>
+</div>
+</section>
+<section class="metric-section" id="indicadores"><div class="section-title-row"><div><span class="eyebrow overline" data-i18n="metrics.eyebrow">EL PULSO DEL MERCADO</span><h2 data-i18n="metrics.title">Indicadores clave</h2></div><span class="section-hint" data-i18n="metrics.closed">Calculados sobre velas cerradas</span></div>
+<div class="metrics-grid grid gap-4">
+<article class="metric-card"><div class="metric-top"><span>EMA 200</span><span class="metric-icon sky">↗</span></div><strong class="metric-value" id="ema200">—</strong><div class="metric-bottom"><span class="mini-status neutral" data-i18n="metrics.trend" id="ema-status">Tendencia</span><span class="metric-note" data-i18n="metrics.longTerm">Largo plazo</span></div></article>
+<article class="metric-card"><div class="metric-top"><span>RSI <span class="metric-index">14</span></span><span class="metric-icon violet">⌁</span></div><strong class="metric-value" id="rsi">—</strong><div class="rsi-meter"><span class="rsi-needle" id="rsi-needle" style="left:50%"></span></div><div class="metric-bottom"><span class="mini-status neutral" data-i18n="metrics.momentum" id="rsi-status">Momentum</span><span class="metric-note" data-i18n="metrics.momentum">30 / 70</span></div></article>
+<article class="metric-card"><div class="metric-top"><span>MACD <span class="metric-index">12·26·9</span></span><span class="metric-icon peach">⌇</span></div><strong class="metric-value" id="macd">—</strong><div class="metric-bottom"><span class="mini-status neutral" data-i18n="metrics.momentum" id="macd-status">Momentum</span><span class="metric-note" data-i18n="metrics.histogram">Histograma</span></div></article>
+<article class="metric-card"><div class="metric-top"><span data-i18n="metrics.volume">VOLUMEN</span><span class="metric-icon mint">▥</span></div><strong class="metric-value" id="volume">—</strong><div class="metric-bottom"><span class="mini-status neutral" data-i18n="metrics.activity" id="volume-status">Actividad</span><span class="metric-note" data-i18n="metrics.avg20">Vs. media 20</span></div></article>
+</div>
+</section>
+<section aria-label="Desglose y niveles" class="lower-grid" data-i18n-aria-label="aria.lower-grid">
+<article class="panel breakdown-panel"><div class="card-title"><div><span class="label-kicker" data-i18n="break.kicker">DESGLOSE TÉCNICO</span><h2 data-i18n="break.title">Señales bajo la lupa</h2></div><span class="subtle-pill" data-i18n="break.six">6 MÉTRICAS</span></div>
+<div class="breakdown-heading"><span data-i18n="break.colIndicator">INDICADOR</span><span data-i18n="break.colReading">LECTURA</span><span data-i18n="break.colStatus">ESTADO</span></div>
+<div class="indicator-row"><div><span class="table-indicator-dot t-blue"></span><strong>EMA 20 / EMA 50</strong><small data-i18n="break.emaDetail">Dirección de corto y medio plazo</small></div><div id="row-ema">—</div><div id="state-ema"><span class="table-tag flat">—</span></div></div>
+<div class="indicator-row"><div><span class="table-indicator-dot t-purple"></span><strong>RSI (14)</strong><small data-i18n="break.rsiDetail">Sobrecompra / sobreventa</small></div><div id="row-rsi">—</div><div id="state-rsi"><span class="table-tag flat">—</span></div></div>
+<div class="indicator-row"><div><span class="table-indicator-dot t-orange"></span><strong>MACD</strong><small data-i18n="break.macdDetail">Momentum vs. línea de señal</small></div><div id="row-macd">—</div><div id="state-macd"><span class="table-tag flat">—</span></div></div>
+<div class="indicator-row"><div><span class="table-indicator-dot t-green"></span><strong data-i18n="break.bollinger">Bandas de Bollinger</strong><small data-i18n="break.bollDetail">Volatilidad · 20 períodos / 2σ</small></div><div id="row-bb">—</div><div id="state-bb"><span class="table-tag flat">—</span></div></div>
+<div class="indicator-row"><div><span class="table-indicator-dot t-sky"></span><strong data-i18n="break.relVolume">Volumen relativo</strong><small data-i18n="break.volDetail">Vs. promedio 20 velas anteriores</small></div><div id="row-vol">—</div><div id="state-vol"><span class="table-tag flat">—</span></div></div>
+<div class="indicator-row"><div><span class="table-indicator-dot t-gray"></span><strong>ATR (14)</strong><small data-i18n="break.atrDetail">Rango promedio verdadero</small></div><div id="row-atr">—</div><div id="state-atr"><span class="table-tag flat" data-i18n="break.informational">Informativo</span></div></div>
+</article>
+<div class="stacked-panels"><article class="panel levels-panel"><div class="card-title"><div><span class="label-kicker" data-i18n="levels.kicker">ESTRUCTURA DE PRECIO</span><h2 data-i18n="levels.title">Niveles de referencia</h2></div><span class="icon-bubble">⌖</span></div><div class="level-stack"><div class="level-number"><div><span class="level-dot resistance"></span><span data-i18n="levels.max">Máximo últimas 30 velas</span></div><strong id="resistance">—</strong></div><div class="level-line"><span class="level-line-center" data-i18n="levels.close" id="current-level">CIERRE</span></div><div class="level-number"><div><span class="level-dot support"></span><span data-i18n="levels.min">Mínimo últimas 30 velas</span></div><strong id="support">—</strong></div></div><p class="small-description" data-i18n="levels.disclaimer">Extremos recientes, no soportes o resistencias garantizados.</p></article>
+<article class="note-panel" id="metodologia"><div class="note-heading"><span class="note-icon">i</span><strong data-i18n="note.title">Antes de decidir</strong></div><p data-i18n="note.description">El motor exige tendencia y momentum alineados. Si no coinciden, espera. No predice el mercado ni ejecuta operaciones.</p><p class="warning-copy" data-i18n="note.warning" id="dynamic-warning">El precio puede variar mientras la última vela sigue abierta.</p><div class="note-mini"><span class="note-stroke"></span><span data-i18n="note.refresh">Se actualiza cada 60 segundos mientras la web está abierta. La señal cambia con las velas cerradas.</span></div></article>
+</div>
+</section>
+<footer class="footer"><p><strong>When buy Bitcoin and other cryptos</strong> <span>·</span> <span class="footer-message" data-i18n="footer.disclaimer">Herramienta informativa, no asesoramiento financiero.</span><button class="terms-link" data-i18n="footer.terms" id="reopen-terms" type="button">Ver términos y riesgos</button></p><span data-i18n-node="footer.slogan" data-i18n-nodes="footer.source|footer.slogan">Datos: Binance Spot · UTC <span class="footer-sep">/</span> Hecho para pensar antes de operar.</span></footer>
+</div>
+</main>
+</div>
+<div aria-describedby="terms-description" aria-labelledby="terms-title" aria-modal="true" class="terms-overlay" id="terms-modal" role="dialog">
+<div class="terms-dialog">
+<div class="terms-mark"><span class="terms-mark-icon"><img src="./assets/img/brand-mark.svg" alt=""/></span><span data-i18n="terms.head">WHEN BUY / INFORMACIÓN IMPORTANTE</span><select aria-label="Idioma / Language / Idioma" class="terms-lang-select" data-i18n-aria-label="language.label" data-language-select="" id="modal-language-select"><option value="es">ES</option><option value="en">EN</option><option value="pt">PT</option></select><span class="terms-version">v. 2026-10-multi</span></div>
+<div class="terms-main">
+<div class="terms-eyebrow" data-i18n="terms.eyebrow">ANTES DE COMENZAR</div>
+<h2 data-i18n-node="terms.title" id="terms-title">Invertir implica riesgos.<br/><span data-i18n="terms.titleSecond">Decidir también.</span></h2>
+<p class="terms-lead" data-i18n="terms.lead" id="terms-description">When buy Bitcoin and other cryptos es una herramienta informativa y experimental para observar indicadores técnicos de criptomonedas. No reemplaza el criterio profesional ni evalúa tu situación financiera.</p>
+<div class="terms-points">
+<div class="terms-point"><span>01</span><div><strong data-i18n="terms.point1">No es asesoramiento financiero</strong><p data-i18n="terms.text1">Las señales de compra, venta o espera son resultados de reglas automatizadas, no recomendaciones personalizadas ni instrucciones de operar.</p></div></div>
+<div class="terms-point"><span>02</span><div><strong data-i18n="terms.point2">Riesgo de pérdidas</strong><p data-i18n="terms.text2">Las criptomonedas son volátiles. Podés perder parte o todo el capital. No se garantizan ganancias, exactitud ni continuidad del servicio.</p></div></div>
+<div class="terms-point"><span>03</span><div><strong data-i18n="terms.point3">Responsabilidad y datos</strong><p data-i18n="terms.text3">Las decisiones son tuyas. El operador no asume responsabilidad por decisiones tomadas a partir de estas señales, en la medida permitida por la ley. Si activás alertas, tus preferencias se guardan únicamente en este navegador hasta que las desactives.</p></div></div>
+</div>
+<p class="terms-fineprint" data-i18n="terms.fineprint">La información puede estar demorada o ser incorrecta. El análisis de titulares es heurístico y puede fallar; los eventos no predicen dirección. No se ejecutan transacciones. La confluencia no representa una probabilidad de acierto. Las alertas requieren la web abierta y pueden demorarse o no llegar.</p>
+<label class="terms-consent"><input id="terms-checkbox" type="checkbox"/><span data-i18n="terms.consent">Leí y comprendo estas advertencias y acepto utilizar When buy Bitcoin and other cryptos bajo estos términos.</span></label>
+</div>
+<div class="terms-actions"><button class="terms-secondary" data-i18n="terms.decline" id="terms-decline" type="button">No acepto</button><button class="terms-primary" data-i18n-node="terms.accept" disabled="" id="terms-accept" type="button">Aceptar y continuar <span aria-hidden="true">→</span></button></div>
+<div class="terms-decline-text" data-i18n="terms.declineText" hidden="" id="terms-decline-text">Sin aceptación no se habilita el dashboard. Podés cerrar la pestaña o revisar nuevamente los términos.</div>
+</div>
+</div>
+<div aria-live="polite" class="toast" hidden="" id="signal-toast" role="status"><span class="toast-icon">↗</span><div><strong data-i18n="toast.title" id="toast-title">Cambio de señal</strong><p data-i18n="toast.body" id="toast-body">Se actualizó la lectura de mercado.</p></div><button aria-label="Cerrar aviso" data-i18n-aria-label="aria.toast-dismiss" id="toast-dismiss">×</button></div>
+</body>
+</html>
