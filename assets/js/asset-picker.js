@@ -1,6 +1,6 @@
 /** Selector de monedas accesible, con destacados y catálogo completo bajo demanda. */
 import {getAssetCatalog, getSelectedAsset, selectAsset, FEATURED, DEFAULT_ASSET} from './assets.js';
-import {t} from './i18n.js?v=20261030-footer25';
+import {t} from './i18n.js?v=20261030-compact26';
 const $ = id=>document.getElementById(id);
 let assets = [DEFAULT_ASSET], openedAll=false, shown=80, query='', available=false;
 const collator=new Intl.Collator('es',{numeric:true,sensitivity:'base'});
