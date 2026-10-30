@@ -1,6 +1,6 @@
 import { getAnalysis } from './market.js?v=20261030-opportunity29';
 import {getSelectedAsset} from './assets.js';
-import {mountCryptoLogo} from './coin-icons.js?v=20261030-coinlogos30';
+import {mountCryptoLogo} from './coin-icons.js?v=20261030-coinlogos31';
 import { t, formatDate, getLocaleTag } from './i18n.js?v=20261030-opportunity29';
 import { enrichAnalysis, isContextEnabled, setContextEnabled, getScheduledEvents } from './market-context.js?v=20261030-opportunity29';
 

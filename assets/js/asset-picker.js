@@ -1,6 +1,6 @@
 /** Selector de monedas accesible, con destacados y catálogo completo bajo demanda. */
 import {getAssetCatalog, getSelectedAsset, selectAsset, FEATURED, DEFAULT_ASSET} from './assets.js';
-import {mountCryptoLogo} from './coin-icons.js?v=20261030-coinlogos30';
+import {mountCryptoLogo} from './coin-icons.js?v=20261030-coinlogos31';
 import {t} from './i18n.js?v=20261030-opportunity29';
 const $ = id=>document.getElementById(id);
 let assets = [DEFAULT_ASSET], openedAll=false, shown=80, query='', available=false;
