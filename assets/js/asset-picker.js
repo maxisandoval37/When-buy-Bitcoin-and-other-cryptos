@@ -1,6 +1,6 @@
 /** Selector de monedas accesible, con destacados y catálogo completo bajo demanda. */
 import {getAssetCatalog, getSelectedAsset, selectAsset, FEATURED, DEFAULT_ASSET} from './assets.js';
-import {mountCryptoLogo} from './coin-icons.js?v=20261030-coinlogos31';
+import {mountCryptoLogo} from './coin-icons.js?v=20261030-coinlogos32';
 import {t} from './i18n.js?v=20261030-opportunity29';
 const $ = id=>document.getElementById(id);
 let assets = [DEFAULT_ASSET], openedAll=false, shown=80, query='', available=false;
@@ -24,7 +24,8 @@ function makeOption(asset) {
   b.setAttribute('aria-label',`${asset.name}, ${asset.base}/${asset.quote}`);
   if (active) b.setAttribute('aria-current','true');
   const icon=document.createElement('span');icon.className='asset-option-icon'+(asset.base==='BTC'?' bitcoin':'');
-  mountCryptoLogo(icon,asset,{eager:!openedAll});
+  // El logo se monta cuando el botón ya está insertado en el DOM.
+  // Evita cargas omitidas por el navegador en elementos desconectados.
   const copy=document.createElement('span');copy.className='asset-option-copy';
   const name=document.createElement('span');name.className='asset-option-name';name.textContent=asset.name;
   const pair=document.createElement('span');pair.className='asset-option-pair';pair.textContent=`${asset.base} / ${asset.quote}`;
@@ -36,7 +37,11 @@ function makeOption(asset) {
 function renderFeatured() {
   const list=$('asset-featured-list');list.replaceChildren();
   const group=FEATURED.map(base=>assets.find(a=>a.base===base)).filter(Boolean);
-  for (const asset of group) list.append(makeOption(asset));
+  for (const asset of group) {
+    const row=makeOption(asset);
+    list.append(row);
+    mountCryptoLogo(row.querySelector('.asset-option-icon'),asset,{eager:true});
+  }
   $('asset-featured-header').textContent=t('assets.featured');
 }
 function matches(asset,needle) {
@@ -49,7 +54,12 @@ function renderAll() {
   const needle=normalize(query);
   const matched=needle?assets.filter(a=>matches(a,needle)):assets;
   const page=matched.slice(0,shown);
-  for (const item of page) list.append(makeOption(item));
+  page.forEach((item,index)=>{
+    const row=makeOption(item);
+    list.append(row);
+    // Las primeras filas son visibles; el resto se difiere al desplazarse.
+    mountCryptoLogo(row.querySelector('.asset-option-icon'),item,{eager:index<12});
+  });
   if (!page.length) {const empty=document.createElement('p');empty.className='asset-picker-feedback';empty.textContent=t('assets.noResults');list.append(empty);}
   $('asset-results-summary').textContent=t('assets.count',{count:matched.length});
   $('asset-load-more').hidden=matched.length<=shown;
