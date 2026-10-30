@@ -1,5 +1,5 @@
 /** Binance spot desde el navegador, sin API key, proxy, backend ni paquetes. */
-import { analyzeCandles } from './indicators.js';
+import { analyzeCandles } from './indicators.js?v=20261030-opportunity29';
 export const INTERVALS = Object.freeze({ '1h':3_600_000, '4h':14_400_000, '1d':86_400_000, '1w':604_800_000 });
 const API_HOSTS = Object.freeze(['https://data-api.binance.vision','https://api.binance.com']);
 const CACHE_MS = 60_000;

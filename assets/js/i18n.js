@@ -311,7 +311,17 @@ const MESSAGES = {
     "context.errorRate": "La fuente limitó las consultas. Se reintentará más tarde.",
     "context.errorResponse": "La fuente devolvió una respuesta no válida.",
     "context.errorAccess": "No se pudo acceder a Hacker News desde el navegador.",
-    "context.hnInformational": "Titulares informativos; no modifican la señal técnica."
+    "context.hnInformational": "Titulares informativos; no modifican la señal técnica.",
+    "chart.markerLayer": "Marcadores históricos de compra y venta",
+    "chart.legendBuy": "Compra",
+    "chart.legendSell": "Venta",
+    "chart.legendNote": "Señales al cierre; con eventos si están habilitados. Noticias informativas.",
+    "chart.opportunityBuy": "Oportunidad de compra",
+    "chart.opportunitySell": "Oportunidad de venta",
+    "chart.regimeBuy": "Señal alcista activa",
+    "chart.regimeSell": "Señal bajista activa",
+    "chart.signalDetails": "RSI {rsi} · Confluencia {score}/100",
+    "chart.markerAria": "{type}. {price}. {date}. Ver detalle."
   },
   "en": {
     "assets.title": "Select cryptocurrency",
@@ -624,7 +634,17 @@ const MESSAGES = {
     "context.errorRate": "The news source is rate-limiting requests. Retrying later.",
     "context.errorResponse": "The news source returned an invalid response.",
     "context.errorAccess": "Unable to access Hacker News from this browser.",
-    "context.hnInformational": "Informational headlines; technical signals remain unchanged."
+    "context.hnInformational": "Informational headlines; technical signals remain unchanged.",
+    "chart.markerLayer": "Historical buy and sell markers",
+    "chart.legendBuy": "Buy",
+    "chart.legendSell": "Sell",
+    "chart.legendNote": "Closed-candle signals; events count when enabled. News is informational.",
+    "chart.opportunityBuy": "Potential buy opportunity",
+    "chart.opportunitySell": "Potential sell opportunity",
+    "chart.regimeBuy": "Bullish signal active",
+    "chart.regimeSell": "Bearish signal active",
+    "chart.signalDetails": "RSI {rsi} · Confluence {score}/100",
+    "chart.markerAria": "{type}. {price}. {date}. View details."
   },
   "pt": {
     "assets.title": "Selecionar criptomoeda",
@@ -937,7 +957,17 @@ const MESSAGES = {
     "context.errorRate": "A fonte limitou as consultas. Nova tentativa posteriormente.",
     "context.errorResponse": "A fonte retornou uma resposta inválida.",
     "context.errorAccess": "Não foi possível acessar o Hacker News pelo navegador.",
-    "context.hnInformational": "Manchetes informativas; os sinais técnicos permanecem iguais."
+    "context.hnInformational": "Manchetes informativas; os sinais técnicos permanecem iguais.",
+    "chart.markerLayer": "Marcadores históricos de compra e venda",
+    "chart.legendBuy": "Compra",
+    "chart.legendSell": "Venda",
+    "chart.legendNote": "Sinais após o fechamento; eventos contam quando ativados. Notícias informativas.",
+    "chart.opportunityBuy": "Oportunidade de compra",
+    "chart.opportunitySell": "Oportunidade de venda",
+    "chart.regimeBuy": "Sinal de alta ativo",
+    "chart.regimeSell": "Sinal de baixa ativo",
+    "chart.signalDetails": "RSI {rsi} · Confluência {score}/100",
+    "chart.markerAria": "{type}. {price}. {date}. Ver detalhes."
   }
 };
 const STORAGE_KEY = 'atlas.language.v1';

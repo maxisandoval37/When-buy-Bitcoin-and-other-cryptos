@@ -1,12 +1,12 @@
-import { enrichAnalysis, isContextEnabled } from './market-context.js?v=20261030-hnonly28';
+import { enrichAnalysis, isContextEnabled } from './market-context.js?v=20261030-opportunity29';
 /**
  * Suscripciones LOCALES: la web estática no dispone de un servidor que emita Web Push.
  * El monitoreo funciona mientras la pestaña permanezca abierta (puede estar en segundo plano).
  * Se mantiene el mismo motor de alertas: avisar SOLO ante señal NUEVA tras vela NUEVA.
  */
-import { getAnalysis } from './market.js';
+import { getAnalysis } from './market.js?v=20261030-opportunity29';
 import {getSelectedAsset,assetName} from './assets.js';
-import { t } from './i18n.js?v=20261030-hnonly28';
+import { t } from './i18n.js?v=20261030-opportunity29';
 (() => {
   'use strict';
   const TERMS = '2026-10-multi', TERMS_KEY = 'atlas.terms.version';

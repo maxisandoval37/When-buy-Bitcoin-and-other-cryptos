@@ -119,6 +119,35 @@ export function evaluateSignal(candles, v) {
     regime, reasons, warnings,
   };
 }
+
+/**
+ * Calcula cada señal histórica exclusivamente con velas cerradas hasta
+ * ese instante. Incluye una vela adicional a la ventana visible para
+ * detectar las transiciones sin anticipar datos posteriores.
+ */
+export function calculateSignalHistory(candles,{visibleCount=111}={}) {
+  if(!Array.isArray(candles) || candles.length<220)
+    throw new Error('Se necesitan al menos 220 velas cerradas para señales históricas');
+  const limit=Math.min(candles.length,Math.max(2,Math.floor(visibleCount)));
+  const first=Math.max(219,candles.length-limit);
+  const entries=[];
+  for(let i=first;i<candles.length;i++){
+    const closed=candles.slice(0,i+1);
+    const indicators=calculateIndicators(closed);
+    const evaluation=evaluateSignal(closed,indicators);
+    entries.push({
+      time:Math.floor(candles[i].openTime/1000),
+      closeTime:candles[i].closeTime,
+      price:candles[i].close,
+      signal:evaluation.signal,
+      confluence:evaluation.confluence,
+      rsi14:indicators.rsi14,
+      macdHistogram:indicators.macdHistogram
+    });
+  }
+  return entries;
+}
+
 export function analyzeCandles(candles, {interval, livePrice, fetchedAt = new Date().toISOString()} = {}) {
   const v = calculateIndicators(candles);
   const decision = evaluateSignal(candles,v);
@@ -127,6 +156,7 @@ export function analyzeCandles(candles, {interval, livePrice, fetchedAt = new Da
     symbol: 'BTCUSDT', interval, candleTime: new Date(last.closeTime).toISOString(), fetchedAt,
     livePrice, candleClose: last.close, candleChangePercent: 100 * (last.close / previous.close - 1),
     ...decision, indicators:v,
+    signalHistory:calculateSignalHistory(candles,{visibleCount:111}),
     series:candles.slice(-110).map(c => ({time:Math.floor(c.openTime/1000),open:c.open,high:c.high,low:c.low,close:c.close,volume:c.volume})),
   };
 }

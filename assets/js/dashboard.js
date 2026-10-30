@@ -1,7 +1,7 @@
-import { getAnalysis } from './market.js';
+import { getAnalysis } from './market.js?v=20261030-opportunity29';
 import {getSelectedAsset} from './assets.js';
-import { t, formatDate, getLocaleTag } from './i18n.js?v=20261030-hnonly28';
-import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-context.js?v=20261030-hnonly28';
+import { t, formatDate, getLocaleTag } from './i18n.js?v=20261030-opportunity29';
+import { enrichAnalysis, isContextEnabled, setContextEnabled, getScheduledEvents } from './market-context.js?v=20261030-opportunity29';
 
 (() => {
   'use strict';
@@ -25,6 +25,8 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
   let requestToken = 0;
   let isLoading = false;
   let hoverIndex = null;
+  let signalPoints = [];
+  let pinnedSignalTime = null;
   let lastError = null;
 
   function setText(id, text) { const el = $(id); if (el) el.textContent = String(text); }
@@ -83,9 +85,125 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
     if (why==='conflict-bullish') return t('context.blockBull');
     return t(d.signal==='BUY' ? 'signal.buySummary' : d.signal==='SELL' ? 'signal.sellSummary' : 'signal.waitSummary');
   }
+
+  function resolveHistoricalSignals(analysis) {
+    const contextual=isContextEnabled();
+    let previous='WAIT';
+    const available=(analysis.signalHistory||[]).map(point=>{
+      let event=null,signal=point.signal;
+      if(contextual && signal!=='WAIT') {
+        event=getScheduledEvents(point.closeTime).find(candidate=>{
+          const delta=candidate.time-point.closeTime;
+          return delta>=-12*3_600_000 && delta<=36*3_600_000;
+        })||null;
+        if(event)signal='WAIT';
+      }
+      const opportunity=signal!=='WAIT' && signal!==previous;
+      previous=signal;
+      return {...point,effectiveSignal:signal,opportunity,macroBlocked:!!event};
+    });
+    // Some new pairs have only the minimum 220 closed candles. Align by
+    // timestamp; early visible candles may have no defensible EMA-200 signal.
+    const byTime=new Map(available.map(item=>[item.time,item]));
+    return analysis.series.map(candle=>byTime.get(candle.time)||null);
+  }
+  function closeSignalTooltip({clearPin=true}={}) {
+    const tip=$('chart-tooltip');
+    tip.hidden=true;tip.classList.remove('is-buy','is-sell','below');
+    if(clearPin)pinnedSignalTime=null;
+  }
+  function showSignalTooltip(point,index,{x,y}={}) {
+    if(!['BUY','SELL'].includes(point.effectiveSignal))return;
+    const tip=$('chart-tooltip'),type=point.effectiveSignal;
+    tip.replaceChildren();
+    tip.classList.remove('is-buy','is-sell','below');
+    tip.classList.add(type==='BUY'?'is-buy':'is-sell');
+    const date=formatDate(new Date(point.closeTime),{
+      timeZone:'UTC',day:'2-digit',month:'short',year:'numeric',
+      ...(['1h','4h'].includes(interval)?{hour:'2-digit',minute:'2-digit'}:{})
+    });
+    const title=document.createElement('strong');title.className='chart-signal-title';
+    title.textContent=t(point.opportunity?(type==='BUY'?'chart.opportunityBuy':'chart.opportunitySell'):(type==='BUY'?'chart.regimeBuy':'chart.regimeSell'));
+    const price=document.createElement('span');price.className='chart-signal-price';price.textContent=money(point.price);
+    const detail=document.createElement('small');detail.className='chart-signal-date';detail.textContent=date+' UTC';
+    const rules=document.createElement('small');rules.className='chart-signal-rules';
+    rules.textContent=t('chart.signalDetails',{rsi:point.rsi14.toFixed(1),score:point.confluence});
+    tip.append(title,price,detail,rules);
+    tip.hidden=false;
+    const frame=$('chart-frame'),width=frame.clientWidth,height=frame.clientHeight;
+    const px=Number.isFinite(x)?x:6+index/Math.max(1,signalPoints.length-1)*(width-80);
+    const py=Number.isFinite(y)?y:height/2;
+    const w=tip.offsetWidth,h=tip.offsetHeight;
+    const left=Math.max(6,Math.min(width-w-6,px-w/2));
+    let top=py-h-16;
+    if(top<6){top=Math.min(height-h-6,py+18);tip.classList.add('below');}
+    top=Math.max(6,Math.min(height-h-6,top));
+    tip.style.left=left+'px';tip.style.top=top+'px';
+    tip.style.setProperty('--chart-arrow-x',Math.max(14,Math.min(w-14,px-left))+'px');
+  }
+  function drawSignalMarkers(items,pad,plotWidth,y) {
+    const layer=$('chart-signal-layer');
+    layer.replaceChildren();
+    if(!signalPoints.length||!items.length){layer.hidden=true;closeSignalTooltip();return;}
+    layer.hidden=false;
+    const candidates=signalPoints.map((point,index)=>point?{...point,index}:null)
+      .filter(point=>point && point.opportunity && point.effectiveSignal!=='WAIT');
+    const maxMarkers=plotWidth<350?6:10,minSeparation=plotWidth<350?30:27;
+    const chosen=[];
+    for(let i=candidates.length-1;i>=0 && chosen.length<maxMarkers;i--){
+      const point=candidates[i];
+      const px=pad.left+point.index/Math.max(1,items.length-1)*plotWidth;
+      if(chosen.some(other=>Math.abs(other.x-px)<minSeparation))continue;
+      chosen.push({point,x:px,y:y(point.price)});
+    }
+    for(const {point,x,y:py} of chosen.reverse()){
+      const button=document.createElement('button'),buy=point.effectiveSignal==='BUY';
+      button.type='button';
+      button.className='chart-opportunity-marker '+(buy?'is-buy':'is-sell');
+      button.style.left=x+'px';button.style.top=py+'px';
+      button.dataset.time=String(point.time);
+      button.setAttribute('aria-label',t('chart.markerAria',{
+        type:t(buy?'chart.opportunityBuy':'chart.opportunitySell'),
+        price:money(point.price),
+        date:formatDate(new Date(point.closeTime),{timeZone:'UTC',day:'2-digit',month:'short',year:'numeric'})
+      }));
+      button.addEventListener('pointerenter',event=>{
+        if(event.pointerType==='touch'||pinnedSignalTime!==null)return;
+        hoverIndex=point.index;showSignalTooltip(point,point.index,{x,y:py});drawChart(false);
+      });
+      button.addEventListener('pointerleave',()=>{
+        if(pinnedSignalTime!==null)return;
+        hoverIndex=null;closeSignalTooltip({clearPin:false});drawChart(false);
+      });
+      button.addEventListener('focus',()=>{
+        hoverIndex=point.index;showSignalTooltip(point,point.index,{x,y:py});drawChart(false);
+      });
+      button.addEventListener('blur',()=>{
+        if(pinnedSignalTime!==null)return;
+        hoverIndex=null;closeSignalTooltip({clearPin:false});drawChart(false);
+      });
+      button.addEventListener('click',event=>{
+        event.stopPropagation();
+        if(pinnedSignalTime===point.time){
+          pinnedSignalTime=null;closeSignalTooltip();hoverIndex=null;drawChart(false);
+        } else {
+          pinnedSignalTime=point.time;hoverIndex=point.index;
+          showSignalTooltip(point,point.index,{x,y:py});drawChart(false);
+        }
+      });
+      layer.append(button);
+    }
+    if(pinnedSignalTime!==null){
+      const current=chosen.find(row=>row.point.time===pinnedSignalTime);
+      if(current)showSignalTooltip(current.point,current.point.index,{x:current.x,y:current.y});
+      else closeSignalTooltip();
+    }
+  }
+
   function updateDashboard(d,{announce=true}={}) {
     const previousSignal = snapshot?.symbol===d.symbol?snapshot.signal:null;
     snapshot = d;
+    signalPoints=resolveHistoricalSignals(d);
     setText('spot-price', numberPrice(d.livePrice));
     setText('candle-close', numberPrice(d.candleClose));
     setText('candle-time', 'UTC · ' + timestamp(new Date(d.candleTime)));
@@ -295,7 +413,7 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
     }
   }
 
-  function drawChart() {
+  function drawChart(refreshOverlays=true) {
     const canvas = $('price-chart');
     const container = $('chart-frame');
     const width = container.clientWidth;
@@ -364,7 +482,10 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
       const approx = ctx.measureText(label).width;
       ctx.fillText(label, Math.min(width-pad.right-approx, Math.max(6,x(i)-approx/2)),height-2);
     });
-    drawContextMarkers(items,pad,plotWidth);
+    if(refreshOverlays){
+      drawContextMarkers(items,pad,plotWidth);
+      drawSignalMarkers(items,pad,plotWidth,y);
+    }
     if (hoverIndex !== null && hoverIndex >= 0 && hoverIndex < items.length) {
       const point = items[hoverIndex];
       ctx.strokeStyle='#9fb1c6';ctx.setLineDash([4,4]);ctx.lineWidth=1;
@@ -373,22 +494,36 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
     }
   }
 
+
   function updateHover(event) {
-    if (!snapshot?.series?.length) return;
-    const rect = $('price-chart').getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const width = $('chart-frame').clientWidth;
-    const point = Math.round((x - 6) / Math.max(1, width - 80) * (snapshot.series.length-1));
-    hoverIndex = Math.min(snapshot.series.length-1,Math.max(0,point));
-    const item = snapshot.series[hoverIndex];
-    const tip = $('chart-tooltip');
-    const time = new Date(item.time*1000).toLocaleString(getLocaleTag(), {timeZone:'UTC',dateStyle:'short',timeStyle:'short'});
-    tip.textContent = t('chart.tooltip',{time,price:money(item.close),volume:compact.format(item.volume)});
-    tip.hidden = false;
-    const tipWidth=tip.offsetWidth;
-    tip.style.left = Math.max(3,Math.min(width-tipWidth-4,x-tipWidth/2))+'px';
-    tip.style.top='7px';
-    drawChart();
+    if (!snapshot?.series?.length || pinnedSignalTime!==null) return;
+    const rect=$('price-chart').getBoundingClientRect();
+    const width=$('chart-frame').clientWidth,px=event.clientX-rect.left,plotWidth=Math.max(1,width-80);
+    const index=Math.max(0,Math.min(snapshot.series.length-1,
+      Math.round((px-6)/plotWidth*(snapshot.series.length-1))));
+    hoverIndex=index;
+    const point=signalPoints[index],tip=$('chart-tooltip');
+    const canvasPoint=snapshot.series[index],bounds=snapshot.series;
+    const min=Math.min(...bounds.map(c=>c.low)),max=Math.max(...bounds.map(c=>c.high));
+    const margin=(max-min || max*.03)*.10;
+    const bottom=min-margin,top=max+margin;
+    const plotHeight=$('chart-frame').clientHeight-14-27-40;
+    const y=14+(top-canvasPoint.close)/Math.max(1e-15,top-bottom)*plotHeight;
+    const x=6+index/Math.max(1,bounds.length-1)*plotWidth;
+    if(point&&(point.effectiveSignal==='BUY'||point.effectiveSignal==='SELL')){
+      showSignalTooltip(point,index,{x,y});
+    } else {
+      tip.classList.remove('is-buy','is-sell','below');
+      const time=new Date(canvasPoint.time*1000).toLocaleString(getLocaleTag(),{
+        timeZone:'UTC',dateStyle:'short',timeStyle:'short'
+      });
+      tip.textContent=t('chart.tooltip',{time,price:money(canvasPoint.close),volume:compact.format(canvasPoint.volume)});
+      tip.hidden=false;
+      const tipWidth=tip.offsetWidth;
+      tip.style.left=Math.max(3,Math.min(width-tipWidth-4,px-tipWidth/2))+'px';
+      tip.style.top='7px';
+    }
+    drawChart(false);
   }
   function applyAssetLabels() {
     setText('top-asset-name',selectedAsset.name);
@@ -407,9 +542,10 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
     document.title=`When buy Bitcoin and other cryptos · ${selectedAsset.name}`;
   }
   function resetDisplay() {
-    snapshot=null;rawSnapshot=null;hoverIndex=null;
+    snapshot=null;rawSnapshot=null;hoverIndex=null;signalPoints=[];pinnedSignalTime=null;
+    $('chart-signal-layer').replaceChildren();$('chart-signal-layer').hidden=true;
     for(const id of ['spot-price','candle-close','price-change','ema200','rsi','macd','volume','row-ema','row-rsi','row-macd','row-bb','row-vol','row-atr','resistance','support','confluence','chart-count','signal-verdict','signal-summary'])setText(id,'—');
-    $('chart-tooltip').hidden=true;
+    closeSignalTooltip();
     $('signal-toast').hidden=true;
     $('signal-panel')?.classList.remove('is-buy','is-sell');
     drawChart();
@@ -434,7 +570,9 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
       document.querySelectorAll('[data-interval]').forEach(el=>{
         const active = el === button;el.classList.toggle('selected',active);el.setAttribute('aria-pressed',String(active));
       });
-      snapshot=null;rawSnapshot=null;hoverIndex=null;load(true);drawChart();
+      snapshot=null;rawSnapshot=null;hoverIndex=null;signalPoints=[];pinnedSignalTime=null;
+      $('chart-signal-layer').replaceChildren();$('chart-signal-layer').hidden=true;
+      closeSignalTooltip();load(true);drawChart();
     }));
     document.querySelectorAll('[data-chart]').forEach(button=>button.addEventListener('click',()=>{
       chartType=button.dataset.chart;
@@ -456,7 +594,16 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
     $('retry-btn').addEventListener('click',()=>load(true));
     $('toast-dismiss').addEventListener('click',()=>{$('signal-toast').hidden=true;});
     $('price-chart').addEventListener('pointermove',updateHover);
-    $('price-chart').addEventListener('pointerleave',()=>{hoverIndex=null;$('chart-tooltip').hidden=true;drawChart();});
+    $('price-chart').addEventListener('click',()=>{if(pinnedSignalTime!==null)closeSignalTooltip();});
+    $('price-chart').addEventListener('pointerleave',()=>{
+      if(pinnedSignalTime!==null)return;
+      hoverIndex=null;closeSignalTooltip({clearPin:false});drawChart(false);
+    });
+    document.addEventListener('keydown',event=>{
+      if(event.key==='Escape'&&pinnedSignalTime!==null){
+        hoverIndex=null;closeSignalTooltip();drawChart(false);
+      }
+    });
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(drawChart).observe($('chart-frame'));
     else window.addEventListener('resize',drawChart);
     load();

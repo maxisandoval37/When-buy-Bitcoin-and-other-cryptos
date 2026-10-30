@@ -677,3 +677,31 @@ body{font-size:15px}
 .context-meter[hidden],.context-scale[hidden]{display:none!important}
 .context-indicator.fallback{background:#f7f1e6;color:#866d42}
 .context-indicator.fallback .context-led{background:#b38a44}
+
+/* v2.9 · Historical signal points and responsive callouts */
+.chart-signal-layer{position:absolute;inset:0;z-index:5;pointer-events:none}
+.chart-signal-layer[hidden]{display:none}
+.chart-opportunity-marker{position:absolute;display:grid;place-items:center;pointer-events:auto;cursor:pointer;transform:translate(-50%,-50%);width:28px;height:28px;padding:0;background:transparent;border:0;border-radius:50%;touch-action:manipulation}
+.chart-opportunity-marker::before{content:"";display:block;width:15px;height:15px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 4px #2ba8792a,0 2px 9px #162b3945;background:#20986e;transition:transform .16s}
+.chart-opportunity-marker.is-sell::before{background:#d85a5a;box-shadow:0 0 0 4px #dd6d6d2b,0 2px 9px #162b3945}
+.chart-opportunity-marker:hover::before,.chart-opportunity-marker:focus-visible::before{transform:scale(1.16)}
+.chart-opportunity-marker:focus-visible{outline:2px solid #466fb6;outline-offset:2px}
+.chart-tooltip{z-index:9}
+.chart-tooltip[hidden]{display:none!important}
+.chart-tooltip.is-buy,.chart-tooltip.is-sell{display:flex;flex-direction:column;gap:3px;max-width:min(220px,calc(100% - 12px));min-width:151px;white-space:normal;border-radius:11px;line-height:1.35;padding:10px 12px;border:1px solid #a9ddc4;box-shadow:0 12px 28px #1b3b3226;background:#effbf4;color:#173f31;font-size:12px}
+.chart-tooltip.is-sell{border-color:#f0b7b7;background:#fff0f0;color:#693333;box-shadow:0 12px 28px #54252520}
+.chart-signal-title{font:800 12px/1.35 Manrope,'DM Sans',sans-serif;color:#11794f}
+.chart-tooltip.is-sell .chart-signal-title{color:#b53b3b}
+.chart-signal-price{font:800 13px/1.3 Manrope,'DM Sans',sans-serif;color:#263a50;overflow-wrap:anywhere}
+.chart-signal-date,.chart-signal-rules{font-size:10px;line-height:1.4;color:#638475}
+.chart-tooltip.is-sell .chart-signal-date,.chart-tooltip.is-sell .chart-signal-rules{color:#967474}
+.chart-tooltip.is-buy::after,.chart-tooltip.is-sell::after{content:"";position:absolute;bottom:-6px;left:var(--chart-arrow-x,50%);width:10px;height:10px;transform:translateX(-50%) rotate(45deg);background:#effbf4;border-right:1px solid #a9ddc4;border-bottom:1px solid #a9ddc4}
+.chart-tooltip.is-sell::after{background:#fff0f0;border-color:#f0b7b7}
+.chart-tooltip.below::after{bottom:auto;top:-6px;transform:translateX(-50%) rotate(225deg)}
+.chart-opportunity-legend{display:flex;align-items:center;flex-wrap:wrap;gap:7px 15px;margin-top:9px;color:#78889c;font-size:10.5px;line-height:1.5}
+.chart-legend-buy,.chart-legend-sell{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-weight:800;color:#277f62}
+.chart-legend-sell{color:#b85353}
+.chart-legend-buy i,.chart-legend-sell i{width:8px;height:8px;border-radius:50%;background:#20a579;display:inline-block}
+.chart-legend-sell i{background:#d76666}
+.chart-legend-note{flex:1;min-width:150px}
+@media(max-width:650px){.chart-frame{height:305px}.chart-opportunity-legend{gap:6px 12px}.chart-legend-note{min-width:100%;font-size:10px}.chart-opportunity-marker{width:36px;height:36px}.chart-opportunity-marker::before{width:16px;height:16px}.chart-tooltip.is-buy,.chart-tooltip.is-sell{min-width:144px;padding:9px 11px}.chart-signal-title{font-size:11.5px}}
