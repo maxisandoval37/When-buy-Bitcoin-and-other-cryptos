@@ -1,6 +1,6 @@
 import { getAnalysis } from './market.js';
 import {getSelectedAsset} from './assets.js';
-import { t, formatDate, getLocaleTag } from './i18n.js';
+import { t, formatDate, getLocaleTag } from './i18n.js?v=20261030-footer25';
 import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-context.js';
 
 (() => {

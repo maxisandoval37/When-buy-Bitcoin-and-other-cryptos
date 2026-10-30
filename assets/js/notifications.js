@@ -6,7 +6,7 @@ import { enrichAnalysis, isContextEnabled } from './market-context.js';
  */
 import { getAnalysis } from './market.js';
 import {getSelectedAsset,assetName} from './assets.js';
-import { t } from './i18n.js';
+import { t } from './i18n.js?v=20261030-footer25';
 (() => {
   'use strict';
   const TERMS = '2026-10-multi', TERMS_KEY = 'atlas.terms.version';
