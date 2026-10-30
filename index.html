@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link href="./assets/css/app.css?v=20261030-compact26" rel="stylesheet"/>
+<link href="./assets/css/app.css?v=20261030-news27" rel="stylesheet"/>
 <link href="./favicon.svg" rel="icon" type="image/svg+xml"/>
 <link href="./assets/img/icon-192.png" rel="apple-touch-icon"/>
 <link href="./manifest.webmanifest" rel="manifest"/>
@@ -36,9 +36,9 @@
 <script>
     try { if (localStorage.getItem('atlas.terms.version') === '2026-10-multi') document.documentElement.classList.add('terms-accepted'); } catch (_) {}
   </script>
-<script src="./assets/js/dashboard.js?v=20261030-compact26" type="module"></script>
-<script src="./assets/js/asset-picker.js?v=20261030-compact26" type="module"></script>
-<script src="./assets/js/notifications.js?v=20261030-compact26" type="module"></script>
+<script src="./assets/js/dashboard.js?v=20261030-news27" type="module"></script>
+<script src="./assets/js/asset-picker.js?v=20261030-news27" type="module"></script>
+<script src="./assets/js/notifications.js?v=20261030-news27" type="module"></script>
 </head>
 <body>
 <div class="app-frame">
@@ -113,8 +113,8 @@
 <section aria-labelledby="context-title" class="market-context-panel" id="market-context-panel" hidden="">
   <div class="context-heading"><div><h2 data-i18n="context.title" id="context-title">Noticias y eventos</h2><p id="context-description">Noticias y eventos del mercado.</p></div><div class="context-indicator" aria-live="polite"><span class="context-led"></span><span data-i18n="context.loading" id="context-status">Consultando noticias…</span></div></div>
   <div class="context-content-grid">
-    <div class="context-news-column"><div class="context-section-header"><strong data-i18n="context.news">Noticias recientes</strong><span data-i18n="context.newsSource">GDELT · enlaces originales</span></div><div class="context-news-list" id="context-news-list"><p class="context-empty" data-i18n="context.loading">Consultando noticias…</p></div></div>
-    <div class="context-events-column"><div class="context-section-header"><strong data-i18n="context.upcoming">Próximos eventos</strong><span data-i18n="context.eventSource">Calendario oficial</span></div><div class="context-events-list" id="context-events-list"></div><div class="context-impact" id="context-impact" aria-live="polite"><div class="context-impact-top"><span data-i18n="context.impactTitle">IMPACTO SOBRE LA SEÑAL</span><strong id="context-impact-value">—</strong></div><p id="context-impact-reason" data-i18n="context.initialImpact">Sin cambios en la evaluación técnica.</p><div class="context-meter"><span id="context-meter-fill"></span></div><div class="context-scale"><span data-i18n="context.negative">Presión negativa</span><span data-i18n="context.positive">Presión positiva</span></div></div></div>
+    <div class="context-news-column"><div class="context-section-header"><strong data-i18n="context.news">Noticias recientes</strong><span data-i18n="context.newsSource" id="context-news-source">GDELT · enlaces originales</span></div><div class="context-news-list" id="context-news-list"><p class="context-empty" data-i18n="context.loading">Consultando noticias…</p></div></div>
+    <div class="context-events-column"><div class="context-section-header"><strong data-i18n="context.upcoming">Próximos eventos</strong><span data-i18n="context.eventSource">Calendario oficial</span></div><div class="context-events-list" id="context-events-list"></div><div class="context-impact" id="context-impact" aria-live="polite"><div class="context-impact-top"><span data-i18n="context.impactTitle">IMPACTO SOBRE LA SEÑAL</span><strong id="context-impact-value">—</strong></div><p id="context-impact-reason" data-i18n="context.initialImpact">Sin cambios en la evaluación técnica.</p><div class="context-meter" id="context-meter"><span id="context-meter-fill"></span></div><div class="context-scale" id="context-scale"><span data-i18n="context.negative">Presión negativa</span><span data-i18n="context.positive">Presión positiva</span></div></div></div>
   </div>
   <p class="context-disclaimer" data-i18n="context.disclaimer">Los titulares se clasifican automáticamente sin leer los artículos. Pueden estar incompletos, duplicados o ser erróneos. Los eventos futuros tienen dirección desconocida; el contexto nunca crea una señal de compra o venta por sí solo.</p>
 </section>

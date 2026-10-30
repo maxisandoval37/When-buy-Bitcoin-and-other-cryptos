@@ -261,7 +261,7 @@ const MESSAGES = {
     "context.initialImpact": "Sin cambios en la evaluación técnica.",
     "context.negative": "Presión negativa",
     "context.positive": "Presión positiva",
-    "context.disclaimer": "Las noticias se clasifican automáticamente y pueden fallar. No generan señales por sí solas.",
+    "context.disclaimer": "Los titulares pueden ser incompletos o erróneos. Una fuente alternativa o datos viejos no modifican las señales.",
     "context.feedLive": "Noticias actualizadas",
     "context.feedOffline": "Noticias no disponibles",
     "context.feedEmpty": "Sin noticias recientes verificables",
@@ -302,7 +302,18 @@ const MESSAGES = {
     "context.eventCpi": "Índice de precios al consumidor (CPI)",
     "context.eventJobs": "Informe de empleo de EE. UU. (NFP)",
     "context.eventDataUncertain": "Dato macroeconómico · impacto no predecible",
-    "context.afterLastCandle": "posterior a la última vela cerrada"
+    "context.afterLastCandle": "posterior a la última vela cerrada",
+    "context.feedFallback": "Fuente alternativa · Hacker News",
+    "context.feedStale": "Titulares guardados · sin actualizar",
+    "context.sourceFallback": "Hacker News · artículos originales",
+    "context.fallbackImpact": "Hacker News aporta enlaces informativos; no modifica la señal técnica.",
+    "context.staleImpact": "Titulares desactualizados: no afectan las señales.",
+    "context.emptyImpact": "Sin titulares recientes relevantes; prevalece la señal técnica.",
+    "context.notApplicable": "N/D",
+    "context.errorTimeout": "La fuente tardó demasiado. Probá actualizar en unos minutos.",
+    "context.errorRate": "La fuente limitó las consultas. Se reintentará más tarde.",
+    "context.errorResponse": "La fuente devolvió una respuesta no válida.",
+    "context.errorAccess": "La fuente de noticias restringió el acceso."
   },
   "en": {
     "assets.title": "Select cryptocurrency",
@@ -565,7 +576,7 @@ const MESSAGES = {
     "context.initialImpact": "No change to the technical assessment.",
     "context.negative": "Negative pressure",
     "context.positive": "Positive pressure",
-    "context.disclaimer": "Headlines are assessed automatically and may be wrong. They never create signals on their own.",
+    "context.disclaimer": "Headlines may be incomplete or inaccurate. Alternative or outdated news never changes signals.",
     "context.feedLive": "News updated",
     "context.feedOffline": "News unavailable",
     "context.feedEmpty": "No verifiable recent news",
@@ -606,7 +617,18 @@ const MESSAGES = {
     "context.eventCpi": "U.S. Consumer Price Index (CPI)",
     "context.eventJobs": "U.S. Employment Situation (NFP)",
     "context.eventDataUncertain": "Economic data release · reaction uncertain",
-    "context.afterLastCandle": "after the last closed candle"
+    "context.afterLastCandle": "after the last closed candle",
+    "context.feedFallback": "Alternative source · Hacker News",
+    "context.feedStale": "Saved headlines · not updated",
+    "context.sourceFallback": "Hacker News · original articles",
+    "context.fallbackImpact": "Hacker News offers informational links; it does not alter technical signals.",
+    "context.staleImpact": "Outdated headlines do not affect signals.",
+    "context.emptyImpact": "No relevant recent headlines; technical signal unchanged.",
+    "context.notApplicable": "N/A",
+    "context.errorTimeout": "The news source timed out. Try again later.",
+    "context.errorRate": "The news source is rate-limiting requests. Retrying later.",
+    "context.errorResponse": "The news source returned an invalid response.",
+    "context.errorAccess": "The news source restricted access."
   },
   "pt": {
     "assets.title": "Selecionar criptomoeda",
@@ -869,7 +891,7 @@ const MESSAGES = {
     "context.initialImpact": "Sem alterações na avaliação técnica.",
     "context.negative": "Pressão negativa",
     "context.positive": "Pressão positiva",
-    "context.disclaimer": "As manchetes são avaliadas automaticamente e podem falhar. Não geram sinais sozinhas.",
+    "context.disclaimer": "Manchetes podem estar incompletas ou incorretas. Notícias alternativas ou antigas não alteram sinais.",
     "context.feedLive": "Notícias atualizadas",
     "context.feedOffline": "Notícias indisponíveis",
     "context.feedEmpty": "Sem notícias recentes verificáveis",
@@ -910,7 +932,18 @@ const MESSAGES = {
     "context.eventCpi": "Índice de preços ao consumidor (CPI)",
     "context.eventJobs": "Relatório de emprego dos EUA (NFP)",
     "context.eventDataUncertain": "Indicador macroeconômico · reação incerta",
-    "context.afterLastCandle": "após o último candle fechado"
+    "context.afterLastCandle": "após o último candle fechado",
+    "context.feedFallback": "Fonte alternativa · Hacker News",
+    "context.feedStale": "Manchetes salvas · sem atualização",
+    "context.sourceFallback": "Hacker News · artigos originais",
+    "context.fallbackImpact": "O Hacker News oferece links informativos; não altera sinais técnicos.",
+    "context.staleImpact": "Manchetes desatualizadas não afetam sinais.",
+    "context.emptyImpact": "Sem manchetes recentes relevantes; sinal técnico inalterado.",
+    "context.notApplicable": "N/D",
+    "context.errorTimeout": "A fonte demorou demais. Tente novamente mais tarde.",
+    "context.errorRate": "A fonte limitou as consultas. Nova tentativa posteriormente.",
+    "context.errorResponse": "A fonte retornou uma resposta inválida.",
+    "context.errorAccess": "A fonte de notícias restringiu o acesso."
   }
 };
 const STORAGE_KEY = 'atlas.language.v1';

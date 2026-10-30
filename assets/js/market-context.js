@@ -4,14 +4,25 @@
  * Cero API keys, proxies y backends; la API puede fallar/CORS/rate limiting.
  */
 const NEWS_URL = 'https://api.gdeltproject.org/api/v2/doc/doc';
+const FALLBACK_URL = 'https://hn.algolia.com/api/v1/search_by_date';
 const FED_CALENDAR = 'https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm';
 const CPI_CALENDAR = 'https://www.bls.gov/schedule/news_release/cpi.htm';
 const JOBS_CALENDAR = 'https://www.bls.gov/schedule/news_release/empsit.htm';
 const KEY = 'atlas.context.enabled.v1';
 const MAX_AGE_MS = 15 * 60_000;
+const FAIL_CACHE_MS = 2 * 60_000;
+const STALE_LIMIT_MS = 24 * 3_600_000;
+const GDELT_PACE_MS = 6_500;
+const RATE_LIMIT_BACKOFF_MS = 2 * 60_000;
+const REQUEST_TIMEOUT_MS = 12_000;
+const FALLBACK_TIMEOUT_MS = 8_000;
+const PACE_KEY = 'whenbuy.gdelt.lastAttempt.v1';
+const COOLDOWN_KEY = 'whenbuy.gdelt.cooldown.v1';
+const CACHE_PREFIX = 'whenbuy.news.cache.v2.';
 const NEWS_WINDOW_MS = 7 * 86_400_000;
 const PRICE_EVENT_MS = 36 * 3_600_000;
 const cacheByAsset=new Map();
+const lastGoodByAsset=new Map();
 const inflightByAsset=new Map();
 const BITCOIN={base:'BTC',name:'Bitcoin',symbol:'BTCUSDT'};
 
@@ -142,40 +153,160 @@ function upcomingEvents(now=Date.now()) {
 }
 export function getScheduledEvents(now=Date.now()) {return upcomingEvents(now);}
 
-async function fetchNews({signal,asset=BITCOIN}={}) {
+// The browser is the only client. GDELT can return plain-text 200 responses
+// for rate limits; never treat invalid JSON as an empty or neutral news feed.
+export class NewsProviderError extends Error {
+  constructor(code,provider,status=0) {
+    super(code);this.name='NewsProviderError';this.code=code;
+    this.provider=provider;this.httpStatus=status;
+  }
+}
+function providerError(error,provider) {
+  if(error instanceof NewsProviderError)return error;
+  if(error?.name==='AbortError')return new NewsProviderError('timeout',provider);
+  if(error?.message==='bad-news-format')return new NewsProviderError('invalid-response',provider);
+  return new NewsProviderError('network',provider);
+}
+async function requestJson(url,{signal,timeout,provider}={}) {
+  const controller=new AbortController();
+  const onAbort=()=>controller.abort();
+  signal?.addEventListener('abort',onAbort,{once:true});
+  const timer=setTimeout(()=>controller.abort(),timeout||REQUEST_TIMEOUT_MS);
+  try {
+    const response=await fetch(url,{signal:controller.signal,mode:'cors',credentials:'omit',cache:'no-store',headers:{Accept:'application/json'}});
+    if(response.status===429)throw new NewsProviderError('rate-limit',provider,429);
+    if(!response.ok)throw new NewsProviderError(response.status===403?'forbidden':'http',provider,response.status);
+    const body=await response.text();
+    const prefix=body.trim().slice(0,230);
+    if(/(?:limit requests|rate.limit|too many requests|throttl|quota exceeded)/i.test(prefix))
+      throw new NewsProviderError('rate-limit',provider,response.status);
+    if(!/^[\[{]/.test(prefix))throw new NewsProviderError('invalid-response',provider,response.status);
+    try {return JSON.parse(body);}
+    catch {throw new NewsProviderError('invalid-response',provider,response.status);}
+  } catch(e) {throw providerError(e,provider);}
+  finally {clearTimeout(timer);signal?.removeEventListener('abort',onAbort);}
+}
+function getTimestamp(key) {
+  try{return Number(localStorage.getItem(key))||0;}catch{return 0;}
+}
+function setTimestamp(key,value) {
+  try{localStorage.setItem(key,String(value));}catch{/* Private mode */}
+}
+// The strict DOC API request cadence is shared by assets AND browser tabs.
+function gdeltAllowed(now) {
+  return now>=getTimestamp(COOLDOWN_KEY) && now-getTimestamp(PACE_KEY)>=GDELT_PACE_MS;
+}
+function makeGdeltUrl(asset) {
   const url=new URL(NEWS_URL);
-  const term=asset.base==='BTC'?'bitcoin':`\"${String(asset.name||asset.base).replace(/[\"()]/g,'')}\" crypto`;
-  url.search=new URLSearchParams({query:term,mode:'artlist',format:'json',maxrecords:'75',timespan:'7d',sort:'datedesc'}).toString();
-  const response=await fetch(url,{signal,headers:{Accept:'application/json'},mode:'cors',credentials:'omit',cache:'no-store'});
-  if (!response.ok) throw new Error(`GDELT HTTP ${response.status}`);
-  const payload=await response.json();
-  return parseNews(payload,{asset});
+  const name=String(asset.name||asset.base).replace(/["()]/g,'').slice(0,65);
+  const term=asset.base==='BTC'?'bitcoin':`"${name}" crypto`;
+  url.search=new URLSearchParams({query:term,mode:'artlist',format:'json',maxrecords:'60',timespan:'7d',sort:'datedesc'}).toString();
+  return url;
+}
+async function fetchGdelt(asset,now) {
+  if(!gdeltAllowed(now))throw new NewsProviderError('throttled','gdelt');
+  setTimestamp(PACE_KEY,now);
+  try {
+    const json=await requestJson(makeGdeltUrl(asset),{provider:'gdelt',timeout:REQUEST_TIMEOUT_MS});
+    return parseNews(json,{asset,now});
+  } catch(e) {
+    if(e.code==='rate-limit')setTimestamp(COOLDOWN_KEY,now+RATE_LIMIT_BACKOFF_MS);
+    throw e;
+  }
+}
+// Hacker News is a *fallback source of links*, not a representative sample of
+// financial headlines. Its articles are intentionally excluded from trading
+// signal sentiment adjustments (scheduled macro events still count).
+export function parseHackerNews(payload,{asset=BITCOIN,now=Date.now()}={}) {
+  if(!payload || !Array.isArray(payload.hits))throw new NewsProviderError('invalid-response','hackernews');
+  const seen=new Set();
+  const results=[];
+  for(const hit of payload.hits.slice(0,75)) {
+    const title=String(hit.title||'').trim().slice(0,260);
+    const url=safeHttp(hit.url);
+    const publishedAt=Date.parse(String(hit.created_at||''));
+    if(!url || !url.startsWith('https://') || title.length<12 || !Number.isFinite(publishedAt) || publishedAt>now+3_600_000 || now-publishedAt>NEWS_WINDOW_MS)continue;
+    const host=new URL(url).hostname.toLowerCase();
+    if(host==='news.ycombinator.com'||host.endsWith('.ycombinator.com')||host==='hn.algolia.com')continue;
+    const label=classifyHeadline(title,asset);
+    if(!label.relevant)continue;
+    const identity=normalize(title).replace(/[^a-z0-9]+/g,' ').slice(0,100);
+    if(seen.has(identity))continue;
+    seen.add(identity);
+    results.push({id:url,title,url,source:host.slice(0,72),publishedAt,kind:'neutral',score:0});
+  }
+  return results.sort((a,b)=>b.publishedAt-a.publishedAt).slice(0,18);
+}
+async function fetchFallback(asset,now) {
+  const url=new URL(FALLBACK_URL);
+  url.search=new URLSearchParams({query:asset.base==='BTC'?'bitcoin':String(asset.name||asset.base).slice(0,65),tags:'story',hitsPerPage:'75',numericFilters:`created_at_i>${Math.floor((now-NEWS_WINDOW_MS)/1000)}`}).toString();
+  const json=await requestJson(url,{provider:'hackernews',timeout:FALLBACK_TIMEOUT_MS});
+  return parseHackerNews(json,{asset,now});
+}
+function storageKey(asset){return CACHE_PREFIX+String(asset.symbol||asset.base).replace(/[^A-Z0-9]/gi,'').slice(0,32);}
+function loadStored(asset,now) {
+  try {
+    const record=JSON.parse(sessionStorage.getItem(storageKey(asset))||'null');
+    if(!record||!['live','empty'].includes(record.status)||now-record.fetchedAt>STALE_LIMIT_MS||record.fetchedAt>now)return null;
+    if(!Array.isArray(record.news)||record.news.length>24)return null;
+    return record;
+  } catch{return null;}
+}
+function store(asset,record) {
+  if(!['live','empty'].includes(record.status))return;
+  try {
+    sessionStorage.setItem(storageKey(asset),JSON.stringify({...record,news:record.news.slice(0,18)}));
+  }catch{/* Storage may be disabled/full; in-memory cache remains. */}
+}
+function recordView(record,now,{stale=false}={}) {
+  return {...record,status:stale?'stale':record.status,
+    canInfluenceSignals:!stale && record.status==='live' && record.source==='gdelt',events:upcomingEvents(now)};
 }
 export async function getMarketContext({force=false,now=Date.now(),asset=BITCOIN}={}) {
-  const key=asset.symbol;
-  const cache=cacheByAsset.get(key);
-  if(!force && cache && now-cache.fetchedAt<(cache.status==='live'?MAX_AGE_MS:5*60_000))
-    return {...cache,events:upcomingEvents(now)};
-  if(!force && inflightByAsset.has(key)) return inflightByAsset.get(key);
-  const controller=new AbortController();
-  const timer=setTimeout(()=>controller.abort(),7_500);
+  const key=String(asset.symbol||asset.base);
+  const cached=cacheByAsset.get(key)||loadStored(asset,now);
+  if(cached&&!cacheByAsset.has(key))cacheByAsset.set(key,cached);
+  const lastGood=lastGoodByAsset.get(key)||loadStored(asset,now)||(['live','empty'].includes(cached?.status)?cached:null);
+  const ttl=cached?.status==='unavailable'?FAIL_CACHE_MS:MAX_AGE_MS;
+  // Even manual reloads should not bypass provider rate limits in the first minute.
+  if(cached && now-cached.fetchedAt<ttl && (!force || now-cached.fetchedAt<60_000))
+    return cached.status==='unavailable' && lastGood?.news?.length && now-lastGood.fetchedAt<=STALE_LIMIT_MS
+      ? {...cached,status:'stale',news:lastGood.news,source:lastGood.source,canInfluenceSignals:false,events:upcomingEvents(now)}
+      : recordView(cached,now);
+  if(inflightByAsset.has(key))return inflightByAsset.get(key);
   const task=(async()=>{
+    let articles=[],source=null,providerStatus=null,providerErrorCode=null;
     try {
-      const news=await fetchNews({signal:controller.signal,asset});
-      const value={status:'live',news,fetchedAt:Date.now(),error:null};
-      cacheByAsset.set(key,value);
-      return {...value,events:upcomingEvents(now)};
-    } catch(error) {
-      const value={status:'unavailable',news:[],fetchedAt:Date.now(),error:String(error.message||error)};
-      cacheByAsset.set(key,value);
-      return {...value,events:upcomingEvents(now)};
-    } finally {clearTimeout(timer);inflightByAsset.delete(key);}
-  })();
+      articles=await fetchGdelt(asset,now);
+      if(articles.length)source='gdelt';
+      else providerStatus='empty';
+    } catch(e) {providerErrorCode=providerError(e,'gdelt').code;}
+    if(!source) {
+      try {
+        const alternate=await fetchFallback(asset,now);
+        if(alternate.length){articles=alternate;source='hackernews';}
+        else if(!providerStatus && !providerErrorCode)providerStatus='empty';
+      } catch(e) {
+        if(!providerErrorCode)providerErrorCode=providerError(e,'hackernews').code;
+      }
+    }
+    const status=articles.length?'live':providerStatus==='empty'?'empty':'unavailable';
+    const record={status,news:articles,source,fetchedAt:Date.now(),errorCode:status==='unavailable'?providerErrorCode:null};
+    cacheByAsset.set(key,record);
+    store(asset,record);
+    if(status==='live'||status==='empty')lastGoodByAsset.set(key,record);
+    // When all sources are down, show old headlines marked stale, but never
+    // reuse them for sentiment. The user can still inspect their links.
+    if(status==='unavailable'&&lastGood?.news?.length && now-lastGood.fetchedAt<=STALE_LIMIT_MS)
+      return {...record,news:lastGood.news,source:lastGood.source,status:'stale',canInfluenceSignals:false,events:upcomingEvents(now)};
+    return recordView(record,now);
+  })().finally(()=>inflightByAsset.delete(key));
   inflightByAsset.set(key,task);
   return task;
 }
 export function evaluateMarketContext(technical,context,{now=Date.now()}={}) {
-  const items=(context.news??[]).filter(x=>now-x.publishedAt>=0 && now-x.publishedAt<=72*3_600_000);
+  const eligibleForSentiment=context.status==='live' && context.canInfluenceSignals!==false && context.source!=='hackernews';
+  const items=(eligibleForSentiment?context.news??[]:[]).filter(x=>now-x.publishedAt>=0 && now-x.publishedAt<=72*3_600_000);
   const directional=items.filter(x=>x.score!==0);
   // Máximo 2 artículos por dominio y máximo 8 titulares para evitar que el
   // volumen de un solo medio monopolice el cálculo.
@@ -201,9 +332,9 @@ export function evaluateMarketContext(technical,context,{now=Date.now()}={}) {
   const baseline=technical.signal;
   let adjusted=baseline,reason='none';
   if (nearbyEvent && (baseline==='BUY'||baseline==='SELL')) {adjusted='WAIT';reason='event-risk';}
-  else if (context.status==='live' && enough && baseline==='BUY' && score<=-35) {adjusted='WAIT';reason='conflict-bearish';}
-  else if (context.status==='live' && enough && baseline==='SELL' && score>=35) {adjusted='WAIT';reason='conflict-bullish';}
-  const outlook=(!enough || context.status!=='live')?'insufficient':score>=35?'positive':score<=-35?'negative':'mixed';
+  else if (eligibleForSentiment && enough && baseline==='BUY' && score<=-35) {adjusted='WAIT';reason='conflict-bearish';}
+  else if (eligibleForSentiment && enough && baseline==='SELL' && score>=35) {adjusted='WAIT';reason='conflict-bullish';}
+  const outlook=(!enough || !eligibleForSentiment)?'insufficient':score>=35?'positive':score<=-35?'negative':'mixed';
   return {signal:adjusted,technicalSignal:baseline,reason,score,level:outlook,
     eligibleArticles:selected.length,independentSources:distinctSources,upcomingRisk:nearbyEvent,
     // El porcentaje original es SOLO técnico y queda intacto.

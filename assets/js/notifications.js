@@ -1,4 +1,4 @@
-import { enrichAnalysis, isContextEnabled } from './market-context.js';
+import { enrichAnalysis, isContextEnabled } from './market-context.js?v=20261030-news27';
 /**
  * Suscripciones LOCALES: la web estática no dispone de un servidor que emita Web Push.
  * El monitoreo funciona mientras la pestaña permanezca abierta (puede estar en segundo plano).
@@ -6,7 +6,7 @@ import { enrichAnalysis, isContextEnabled } from './market-context.js';
  */
 import { getAnalysis } from './market.js';
 import {getSelectedAsset,assetName} from './assets.js';
-import { t } from './i18n.js?v=20261030-compact26';
+import { t } from './i18n.js?v=20261030-news27';
 (() => {
   'use strict';
   const TERMS = '2026-10-multi', TERMS_KEY = 'atlas.terms.version';

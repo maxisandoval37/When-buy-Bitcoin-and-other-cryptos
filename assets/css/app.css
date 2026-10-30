@@ -672,3 +672,8 @@ body{font-size:15px}
 @media(max-width:800px){.footer{margin-right:-16px;margin-left:-16px;margin-bottom:-20px;padding-right:16px;padding-left:16px}.page-heading h1{font-size:29px}.price-big{font-size:31px}}
 @media(max-width:650px){.footer{padding-top:22px;padding-bottom:25px;gap:14px}.footer-topline{align-items:center;flex-direction:row;gap:12px}.footer-identity{align-items:flex-start;flex-direction:column;gap:3px}.footer-product{font-size:12px;line-height:1.4}.footer-author{font-size:11.5px}.footer-author strong{font-size:11.5px}.footer-social-icon{width:42px;height:42px}.footer-bottom{align-items:flex-start;flex-direction:column;gap:7px;font-size:11px;padding-top:12px}.footer-legal{gap:5px 8px}.page-heading p{font-size:13px}.metric-value{font-size:22px}.indicator-row strong,.indicator-row>div:nth-child(2){font-size:12px}.indicator-row small{font-size:11px}}
 @media(max-width:370px){.footer-product{font-size:11.5px}.footer-identity{max-width:calc(100% - 100px)}}
+
+/* News provider availability & unscored content (static JS, no backend). */
+.context-meter[hidden],.context-scale[hidden]{display:none!important}
+.context-indicator.fallback{background:#f7f1e6;color:#866d42}
+.context-indicator.fallback .context-led{background:#b38a44}

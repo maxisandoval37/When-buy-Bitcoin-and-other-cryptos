@@ -1,7 +1,7 @@
 import { getAnalysis } from './market.js';
 import {getSelectedAsset} from './assets.js';
-import { t, formatDate, getLocaleTag } from './i18n.js?v=20261030-compact26';
-import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-context.js';
+import { t, formatDate, getLocaleTag } from './i18n.js?v=20261030-news27';
+import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-context.js?v=20261030-news27';
 
 (() => {
   'use strict';
@@ -199,11 +199,21 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
     }
     const ctx=d.marketContext;
     const status=$('context-status').parentElement;
-    const live=ctx?.status==='live';
-    status.classList.toggle('offline',!live);
-    setText('context-status', t(!ctx?'context.loading':!live?'context.feedOffline':ctx.news.length?'context.feedLive':'context.feedEmpty'));
+    const newsStatus=ctx?.status;
+    const live=newsStatus==='live';
+    const available=live || newsStatus==='empty';
+    const fallback=live && ctx.source==='hackernews';
+    const stale=newsStatus==='stale';
+    status.classList.toggle('offline',newsStatus==='unavailable'||stale);
+    status.classList.toggle('fallback',fallback||stale);
+    const statusKey=!ctx?'context.loading':stale?'context.feedStale':fallback?'context.feedFallback':live?'context.feedLive':newsStatus==='empty'?'context.feedEmpty':'context.feedOffline';
+    setText('context-status',t(statusKey));
+    setText('context-news-source',t(ctx?.source==='hackernews'?'context.sourceFallback':'context.newsSource'));
     const newsList=$('context-news-list'); newsList.replaceChildren();
-    if (!ctx?.news?.length) newsList.append(makeElement('p','context-empty',t(!live?'context.notAvailableTitle':'context.noNews')));
+    if (!ctx?.news?.length) {
+      const errorKey=ctx?.errorCode==='timeout'?'context.errorTimeout':ctx?.errorCode==='rate-limit'||ctx?.errorCode==='throttled'?'context.errorRate':ctx?.errorCode==='invalid-response'?'context.errorResponse':ctx?.errorCode==='forbidden'?'context.errorAccess':'context.notAvailableTitle';
+      newsList.append(makeElement('p','context-empty',t(available?'context.noNews':errorKey)));
+    }
     else for (const item of ctx.news.slice(0,7)) {
       const article=makeElement('article','context-news-item');
       article.append(makeElement('span',`context-news-dot ${item.kind}`));
@@ -229,13 +239,19 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
       article.append(date,info);eventList.append(article);
     }
     const impact=ctx?.impact;
-    const score=impact?.score??0;
-    setText('context-impact-value',`${score>0?'+':''}${score} / 100`);
-    $('context-meter-fill').style.left=`${50+score/2}%`;
+    const measurable=live && ctx?.canInfluenceSignals!==false && impact?.independentSources>=2 && impact?.eligibleArticles>=2;
+    const score=measurable?impact.score:null;
+    setText('context-impact-value',score===null?t('context.notApplicable'):`${score>0?'+':''}${score} / 100`);
+    $('context-meter').hidden=!measurable;
+    $('context-scale').hidden=!measurable;
+    $('context-meter-fill').style.left=`${50+(score??0)/2}%`;
     let detail='context.noImpact';
     if (impact?.reason==='event-risk') detail='context.blockEvent';
-    else if (!live) detail='context.unavailable';
-    else if (!impact || impact.level==='insufficient') detail='context.insufficient';
+    else if(stale)detail='context.staleImpact';
+    else if(fallback)detail='context.fallbackImpact';
+    else if(newsStatus==='empty')detail='context.emptyImpact';
+    else if(!available)detail='context.unavailable';
+    else if (!measurable) detail='context.insufficient';
     else if (impact.reason==='conflict-bearish') detail='context.blockBear';
     else if (impact.reason==='conflict-bullish') detail='context.blockBull';
     else if (impact.level==='positive') detail='context.positiveImpact';
@@ -248,7 +264,7 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
       driver.append(makeElement('span','driver-mark','◌'),makeElement('span','context-driver-text'));
       driverList.append(driver);
     }
-    driver.querySelector('.context-driver-text').textContent=t(impact?.reason==='event-risk'?'context.blockEvent':impact?.reason==='conflict-bearish'?'context.blockBear':impact?.reason==='conflict-bullish'?'context.blockBull':live?'context.combined':'context.unavailable');
+    driver.querySelector('.context-driver-text').textContent=t(impact?.reason==='event-risk'?'context.blockEvent':impact?.reason==='conflict-bearish'?'context.blockBear':impact?.reason==='conflict-bullish'?'context.blockBull':stale?'context.staleImpact':fallback?'context.fallbackImpact':newsStatus==='empty'?'context.emptyImpact':live?'context.combined':'context.unavailable');
   }
   function drawContextMarkers(items,pad,plotWidth) {
     const layer=$('chart-marker-layer'),future=$('chart-future-badge');
@@ -257,7 +273,7 @@ import { enrichAnalysis, isContextEnabled, setContextEnabled } from './market-co
     if (!isContextEnabled() || !data || !items.length) {layer.hidden=true;return;}
     layer.hidden=false;
     const start=items[0].time*1000, end=items.at(-1).time*1000;
-    const markers=(data.news||[]).filter(item=>item.publishedAt>=start && item.publishedAt<=Date.now())
+    const markers=(data.status==='stale'?[]:data.news||[]).filter(item=>item.publishedAt>=start && item.publishedAt<=Date.now())
       .sort((a,b)=>b.publishedAt-a.publishedAt);
     const occupied=[];
     for (const item of markers) {
